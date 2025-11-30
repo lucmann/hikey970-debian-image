@@ -3,11 +3,11 @@
 set -ue
 
 DISTRO=${DISTRO:-"bionic"}
-GIT_VERSION=`git describe --tags`
-VERSION=${VERSION:-$GIT_VERSION}
+#GIT_VERSION=`git describe --tags`
+VERSION=${VERSION:-v1.0}
 echo "Version:" $VERSION
 
-REQUIRED="qemu-debootstrap img2simg mkfs.ext4"
+REQUIRED="debootstrap img2simg mkfs.ext4"
 MIRRORS=${MIRRORS:-}
 SOFTWARE=${SOFTWARE:-"ssh,zsh,tmux,linux-firmware,vim-nox,net-tools,wpasupplicant,network-manager,parted"}
 
@@ -26,7 +26,7 @@ echo "Clean tmp"
 rm -rf build
 mkdir build
 
-qemu-debootstrap --arch arm64 --include=$SOFTWARE --components=main,multiverse,universe $DISTRO build/rootfs $MIRRORS
+debootstrap --arch arm64 --include=$SOFTWARE --components=main,multiverse,universe $DISTRO build/rootfs $MIRRORS
 
 cp -r rootfs/boot/* build/rootfs/boot/
 cp -r rootfs/etc/netplan/* build/rootfs/etc/netplan/
