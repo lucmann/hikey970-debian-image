@@ -7,9 +7,22 @@ DISTRO=${DISTRO:-"bionic"}
 VERSION=${VERSION:-v1.0}
 echo "Version:" $VERSION
 
-REQUIRED="debootstrap img2simg mkfs.ext4"
+REQUIRED="debootstrap img2simg mkfs.ext2"
 MIRRORS=${MIRRORS:-}
-SOFTWARE=${SOFTWARE:-"ssh,zsh,tmux,linux-firmware,vim-nox,net-tools,wpasupplicant,network-manager,parted"}
+SOFTWARE="ssh \
+,zsh \
+,firmware-linux-nonfree \
+,vim-nox \
+,net-tools \
+,wpasupplicant \
+,systemd \
+,iw \
+,dhcpcd5 \
+,wireless-tools \
+,dbus \
+,iproute2 \
+,network-manager \
+"
 
 SYSTEM_SIZE=${SYSTEM_SIZE:-'2048'} # 1G
 
@@ -26,21 +39,24 @@ echo "Clean tmp"
 rm -rf build
 mkdir build
 
-debootstrap --arch arm64 --include=$SOFTWARE --components=main,multiverse,universe $DISTRO build/rootfs $MIRRORS
+ 	#--exclude=policykit-1,polkitd,network-manager,crda \
+debootstrap --arch arm64 --include=${SOFTWARE// /} \
+	--components=main,contrib,non-free,non-free-firmware $DISTRO build/rootfs $MIRRORS
 
-cp -r rootfs/boot/* build/rootfs/boot/
-cp -r rootfs/etc/netplan/* build/rootfs/etc/netplan/
-cp -r rootfs/etc/rc.local build/rootfs/etc/
-cp -r rootfs/etc/update-motd.d/* build/rootfs/etc/update-motd.d/
-cp -r rootfs/lib build/rootfs/
-cp -r rootfs/root build/rootfs/
+cp -r rootfs/boot/* build/rootfs/boot
+cp -r rootfs/etc/netplan build/rootfs/etc
+cp -r rootfs/etc/rc.local build/rootfs/etc
+cp -r rootfs/etc/update-motd.d build/rootfs/etc
+cp -r rootfs/lib/* build/rootfs/lib
+cp -r rootfs/root/* build/rootfs/root
 
 echo "Initial system"
 chroot build/rootfs /root/init.sh
 
 echo "Building image" $SYSTEM_SIZE
 dd if=/dev/zero of=build/rootfs.img bs=1M count=$SYSTEM_SIZE conv=sparse
-mkfs.ext4 -L rootfs build/rootfs.img
+mkfs.ext2 -L rootfs -F build/rootfs.img
+if test $? -eq 0; then echo "mkfs.ext2 OK..."; fi
 
 mkdir build/loop
 mount -o loop build/rootfs.img build/loop
