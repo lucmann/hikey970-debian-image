@@ -16,12 +16,11 @@ SOFTWARE="ssh \
 ,net-tools \
 ,wpasupplicant \
 ,systemd \
-,iw \
 ,dhcpcd5 \
+,dhclient \
 ,wireless-tools \
 ,dbus \
 ,iproute2 \
-,network-manager \
 "
 
 SYSTEM_SIZE=${SYSTEM_SIZE:-'2048'} # 1G
