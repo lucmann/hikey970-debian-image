@@ -3,3 +3,4 @@ build
 ubuntu-18.04-arm64.qcow2
 QEMU_EFI.fd
 ubuntu-18.04.6-server-arm64.iso
+/**/wpa_supplicant-wlan0.conf
