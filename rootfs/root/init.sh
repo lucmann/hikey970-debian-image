@@ -1,10 +1,14 @@
 #!/bin/bash
-
 set -ue
 
-useradd -g sudo -m -s /bin/zsh hi
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+export LANGUAGE=C.UTF-8
+
+if ! grep -q '^hi' /etc/passwd; then
+	useradd -g sudo -m -s /bin/bash hi
+fi
 echo hi:hikey970 | chpasswd
-echo "#made by mzh" >> /home/hi/.zshrc
 
 passwd -d root
 
@@ -19,5 +23,10 @@ rm -f /etc/ssh/ssh_host_*
 echo "hikey970" > /etc/hostname
 echo "127.0.0.1 hikey970" >> /etc/hosts
 
+echo "configure systemd"
+systemctl enable wpa_supplicant@wlan0.service
+systemctl enable dhcpcd.service
+
 echo "self destroy, bye bye"
 rm /root/init.sh
+
