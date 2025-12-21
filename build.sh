@@ -12,12 +12,13 @@ MIRRORS=${MIRRORS:-}
 SOFTWARE="ssh \
 ,zsh \
 ,firmware-linux-nonfree \
+,firmware-ti-connectivity \
 ,vim-nox \
 ,net-tools \
 ,wpasupplicant \
+,iw \
 ,systemd \
 ,dhcpcd5 \
-,dhclient \
 ,wireless-tools \
 ,dbus \
 ,iproute2 \
@@ -38,14 +39,23 @@ echo "Clean tmp"
 rm -rf build
 mkdir build
 
- 	#--exclude=policykit-1,polkitd,network-manager,crda \
 debootstrap --arch arm64 --include=${SOFTWARE// /} \
 	--components=main,contrib,non-free,non-free-firmware $DISTRO build/rootfs $MIRRORS
 
+if test ! -d build/rootfs/etc/wpa_supplicant; then
+	echo "--- /etc/wpa_supplicant not found"
+	mkdir -p build/rootfs/etc/wpa_supplcant
+fi
+if test ! -d build/rootfs/etc/systemd/system; then
+	echo "--- /etc/systemd/system not found"
+	mkdir -p build/rootfs/etc/systemd/system
+fi
 cp -r rootfs/boot/* build/rootfs/boot
 cp -r rootfs/etc/netplan build/rootfs/etc
 cp -r rootfs/etc/rc.local build/rootfs/etc
 cp -r rootfs/etc/update-motd.d build/rootfs/etc
+cp -r rootfs/etc/wpa_supplicant build/rootfs/etc
+cp -r rootfs/etc/systemd/system build/rootfs/etc/systemd
 cp -r rootfs/lib/* build/rootfs/lib
 cp -r rootfs/root/* build/rootfs/root
 
