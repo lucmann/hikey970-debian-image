@@ -27,6 +27,9 @@ echo "configure systemd"
 systemctl enable wpa_supplicant@wlan0.service
 systemctl enable dhcpcd.service
 
+echo "set timezone"
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
 echo "self destroy, bye bye"
 rm /root/init.sh
 
