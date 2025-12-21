@@ -3,7 +3,6 @@
 set -ue
 
 DISTRO=${DISTRO:-"bionic"}
-#GIT_VERSION=`git describe --tags`
 VERSION=${VERSION:-v1.0}
 echo "Version:" $VERSION
 
@@ -110,7 +109,7 @@ fi
 bootstrap_stage_2
 
 echo "Building sparse"
-export SPARSE_IMG="ubuntu_$DISTRO.hikey970.$VERSION.sparse.img"
+export SPARSE_IMG="debian_$DISTRO.hikey970.$VERSION.sparse.img"
 img2simg build/rootfs.img build/$SPARSE_IMG
 
 echo "Compressing"
