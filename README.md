@@ -1,6 +1,6 @@
-# Hikey970 Ubuntu Image
+# Hikey970 Debian Image
 
-This is a Ubuntu system image for Hikey970 SBC ONLY
+This is a Debian system image for Hikey970 SBC ONLY
 
 ## Download
 [Release Page](https://github.com/mengzhuo/hikey970-ubuntu-image/releases)
@@ -8,7 +8,7 @@ This is a Ubuntu system image for Hikey970 SBC ONLY
 ## Usage
 
 ```
-fastboot flash system ubuntu_*.sparse.img
+fastboot flash system debian_*.sparse.img
 ```
 
 Login
@@ -33,7 +33,7 @@ apt install android-tools-fsutils qemu-user-static debootstrap
 ```
 
 ```
-git clone https://github.com/mengzhuo/hikey970-ubuntu-image
+git clone https://github.com/lucmann/hikey970-ubuntu-image -b hikey970-debian-image hikey970-debian-image
 cd hikey970-ubuntu-image
 ./build.sh
 
