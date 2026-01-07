@@ -26,6 +26,7 @@ echo "127.0.0.1 hikey970" >> /etc/hosts
 echo "configure systemd"
 systemctl enable wpa_supplicant@wlan0.service
 systemctl enable dhcpcd.service
+systemctl disable ssh.service
 
 echo "set timezone"
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
