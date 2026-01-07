@@ -2,4 +2,4 @@
 #
 #    11-help-text - print the help text associated with image
 
-printf " * Image Support:  https://github.com/mengzhuo/hikey970-ubuntu-image\n"
+printf " * Image Support:  https://github.com/lucmann/hikey970-debian-image\n"
