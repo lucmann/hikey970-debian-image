@@ -33,8 +33,8 @@ apt install android-tools-fsutils qemu-user-static debootstrap
 ```
 
 ```
-git clone https://github.com/lucmann/hikey970-ubuntu-image -b hikey970-debian-image hikey970-debian-image
-cd hikey970-ubuntu-image
-./build.sh
+git clone https://github.com/lucmann/hikey970-debian-image
+cd hikey970-debian-image
+DISTRO=bookworm ./build.sh
 
 ```
