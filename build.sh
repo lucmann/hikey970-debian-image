@@ -22,6 +22,8 @@ SOFTWARE="ssh \
 ,wireless-tools \
 ,dbus \
 ,iproute2 \
+,rng-tools5 \
+,haveged \
 "
 
 SYSTEM_SIZE=${SYSTEM_SIZE:-'2048'} # 1G
@@ -80,6 +82,7 @@ bootstrap_stage_2() {
 	cp -r rootfs/etc/update-motd.d build/rootfs/etc
 	cp -r rootfs/etc/wpa_supplicant build/rootfs/etc
 	cp -r rootfs/etc/systemd/system build/rootfs/etc/systemd
+	cp -r rootfs/etc/default/rng-tools build/rootfs/etc/default
 	cp -r rootfs/lib/* build/rootfs/lib
 	cp -r rootfs/root/* build/rootfs/root
 
