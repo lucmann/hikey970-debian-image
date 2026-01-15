@@ -72,6 +72,10 @@ OPTIONS:
   --boot-size MB       Boot partition size in MB (default: 256)
   --sd-size MB         Total SD card image size in MB (default: 15000)
 
+Alignment Options:
+  --classic-align      Use classic MBR alignment (sector 63, like old tools)
+                       Default: Modern 1MiB alignment (better performance)
+
 EXAMPLES:
   # First time: Build everything (slow due to debootstrap)
   sudo ./build.sh
@@ -150,6 +154,10 @@ case "$1" in
 --sd-size)
 	SD_IMAGE_SIZE="$2"
 	shift 2
+	;;
+--classic-align)
+	MBR_CLASSIC_ALIGN=1
+	shift
 	;;
 *)
 	echo "Unrecognized option: $1"
@@ -349,17 +357,33 @@ build_sdcard_image() {
 	echo "Creating ${SD_IMAGE_SIZE}MB SD card image..."
 	dd if=/dev/zero of=build/${SD_IMG_NAME} bs=1M count=0 seek=${SD_IMAGE_SIZE} status=progress
 	
-	# Create GPT partition table
-	echo "Creating GPT partition table..."
-	sgdisk -o build/${SD_IMG_NAME}
+	# Create MBR partition table (NOT GPT!)
+	# HiKey970 UEFI expects MBR for SD card boot
+	echo "Creating MBR partition table..."
+	parted -s build/${SD_IMG_NAME} mklabel msdos
 	
 	# Partitions: boot (FAT32) + rootfs (EXT4)
 	# Note: l-loader.bin and fip.bin stay in eMMC, not on SD card
 	echo "Creating partitions..."
-	sgdisk -n 1:2048:+${BOOT_SIZE}M -t 1:EF00 -c 1:"boot" build/${SD_IMG_NAME}
-	sgdisk -n 2:0:0 -t 2:8300 -c 2:"rootfs" build/${SD_IMG_NAME}
 	
-	sgdisk -p build/${SD_IMG_NAME}
+	# Choose alignment strategy
+	if [ "${MBR_CLASSIC_ALIGN:-0}" = "1" ]; then
+		# Classic MBR alignment (start at sector 63, like old tools)
+		echo "Using classic MBR alignment (sector 63)..."
+		parted -s build/${SD_IMG_NAME} mkpart primary fat32 63s $((BOOT_SIZE * 2048))s
+	else
+		# Modern alignment (start at 1MiB, better for performance)
+		echo "Using modern alignment (1MiB)..."
+		parted -s build/${SD_IMG_NAME} mkpart primary fat32 1MiB ${BOOT_SIZE}MiB
+	fi
+	
+	# Partition 1: Boot (FAT32, bootable flag)
+	parted -s build/${SD_IMG_NAME} set 1 boot on
+	
+	# Partition 2: Root (EXT4)
+	parted -s build/${SD_IMG_NAME} mkpart primary ext4 ${BOOT_SIZE}MiB 100%
+	
+	parted -s build/${SD_IMG_NAME} print
 	
 	# Setup loop device
 	echo "Setting up loop device..."
@@ -381,6 +405,40 @@ build_sdcard_image() {
 	echo "Populating boot partition..."
 	BOOT_MNT=$(mktemp -d)
 	mount ${LOOP_DEV}p1 ${BOOT_MNT}
+	
+	# Install GRUB EFI bootloader first
+	echo "Installing GRUB EFI bootloader..."
+	mkdir -p ${BOOT_MNT}/EFI/BOOT
+	
+	# Try to find GRUB EFI files
+	GRUB_EFI_FOUND=false
+	
+	# Check common locations for grubaa64.efi
+	GRUB_LOCATIONS=(
+		"/usr/lib/grub/arm64-efi/grubaa64.efi"
+		"/boot/efi/EFI/debian/grubaa64.efi"
+		"/boot/efi/EFI/ubuntu/grubaa64.efi"
+		"./firmware/grubaa64.efi"
+		"${KERNEL_DIR}/grubaa64.efi"
+	)
+	
+	for loc in "${GRUB_LOCATIONS[@]}"; do
+		if [ -f "$loc" ]; then
+			cp "$loc" ${BOOT_MNT}/EFI/BOOT/grubaa64.efi
+			# Also copy as BOOTAA64.EFI (UEFI default)
+			cp "$loc" ${BOOT_MNT}/EFI/BOOT/BOOTAA64.EFI
+			echo "  ✓ Installed GRUB EFI from $loc"
+			GRUB_EFI_FOUND=true
+			break
+		fi
+	done
+	
+	if [ "$GRUB_EFI_FOUND" = false ]; then
+		echo "  ✗ Warning: grubaa64.efi not found!"
+		echo "  Installing grub-efi-arm64-bin or providing grubaa64.efi in ${KERNEL_DIR}/"
+		echo "  For now, creating a note file..."
+		echo "GRUB EFI bootloader missing - install grub-efi-arm64-bin package" > ${BOOT_MNT}/EFI/BOOT/README.txt
+	fi
 	
 	# Copy kernel files if they exist
 	HAS_KERNEL=false
