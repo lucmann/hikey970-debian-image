@@ -370,7 +370,7 @@ build_sdcard_image() {
 	if [ "${MBR_CLASSIC_ALIGN:-0}" = "1" ]; then
 		# Classic MBR alignment (start at sector 63, like old tools)
 		echo "Using classic MBR alignment (sector 63)..."
-		parted -s build/${SD_IMG_NAME} mkpart primary fat32 63s $((BOOT_SIZE * 2048))s
+		parted -s build/${SD_IMG_NAME} mkpart primary fat32 63s $((BOOT_SIZE * 2048 - 1))s
 	else
 		# Modern alignment (start at 1MiB, better for performance)
 		echo "Using modern alignment (1MiB)..."
