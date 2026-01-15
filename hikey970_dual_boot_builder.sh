@@ -37,7 +37,7 @@ BUILD_EMMC=${BUILD_EMMC:-1}
 BUILD_SDCARD=${BUILD_SDCARD:-1}
 
 # Kernel files directory
-KERNEL_DIR=${KERNEL_DIR:-"./kernel"}
+KERNEL_DIR=${KERNEL_DIR:-"./rootfs/boot"}
 
 # Rootfs cache directory
 ROOTFS_CACHE=${ROOTFS_CACHE:-"build/rootfs"}
@@ -406,101 +406,8 @@ build_sdcard_image() {
 	BOOT_MNT=$(mktemp -d)
 	mount ${LOOP_DEV}p1 ${BOOT_MNT}
 	
-	# Install GRUB EFI bootloader first
-	echo "Installing GRUB EFI bootloader..."
-	mkdir -p ${BOOT_MNT}/EFI/BOOT
-	
-	# Try to find GRUB EFI files
-	GRUB_EFI_FOUND=false
-	
-	# Check common locations for grubaa64.efi
-	GRUB_LOCATIONS=(
-		"/usr/lib/grub/arm64-efi/grubaa64.efi"
-		"/boot/efi/EFI/debian/grubaa64.efi"
-		"/boot/efi/EFI/ubuntu/grubaa64.efi"
-		"./firmware/grubaa64.efi"
-		"${KERNEL_DIR}/grubaa64.efi"
-	)
-	
-	for loc in "${GRUB_LOCATIONS[@]}"; do
-		if [ -f "$loc" ]; then
-			cp "$loc" ${BOOT_MNT}/EFI/BOOT/grubaa64.efi
-			# Also copy as BOOTAA64.EFI (UEFI default)
-			cp "$loc" ${BOOT_MNT}/EFI/BOOT/BOOTAA64.EFI
-			echo "  ✓ Installed GRUB EFI from $loc"
-			GRUB_EFI_FOUND=true
-			break
-		fi
-	done
-	
-	if [ "$GRUB_EFI_FOUND" = false ]; then
-		echo "  ✗ Warning: grubaa64.efi not found!"
-		echo "  Installing grub-efi-arm64-bin or providing grubaa64.efi in ${KERNEL_DIR}/"
-		echo "  For now, creating a note file..."
-		echo "GRUB EFI bootloader missing - install grub-efi-arm64-bin package" > ${BOOT_MNT}/EFI/BOOT/README.txt
-	fi
-	
-	# Copy kernel files if they exist
-	HAS_KERNEL=false
-	HAS_DTB=false
-	HAS_INITRD=false
-	
-	if [ -f "${KERNEL_DIR}/Image" ]; then
-		cp ${KERNEL_DIR}/Image ${BOOT_MNT}/
-		echo "  ✓ Copied kernel Image"
-		HAS_KERNEL=true
-	elif [ -f "${KERNEL_DIR}/Image.gz" ]; then
-		cp ${KERNEL_DIR}/Image.gz ${BOOT_MNT}/
-		echo "  ✓ Copied kernel Image.gz"
-		HAS_KERNEL=true
-	else
-		echo "  ✗ Warning: No kernel Image found in ${KERNEL_DIR}"
-	fi
-	
-	if [ -f "${KERNEL_DIR}/hi3670-hikey970.dtb" ]; then
-		cp ${KERNEL_DIR}/hi3670-hikey970.dtb ${BOOT_MNT}/
-		echo "  ✓ Copied device tree"
-		HAS_DTB=true
-	else
-		echo "  ✗ Warning: Device tree not found in ${KERNEL_DIR}"
-	fi
-	
-	if [ -f "${KERNEL_DIR}/initrd.img" ]; then
-		cp ${KERNEL_DIR}/initrd.img ${BOOT_MNT}/
-		echo "  ✓ Copied initramfs"
-		HAS_INITRD=true
-	else
-		echo "  ⓘ Note: No initramfs (optional if kernel has built-in MMC/ext4 drivers)"
-	fi
-	
-	# Create GRUB directory structure
-	echo "Creating boot configuration (grub.cfg)..."
-	mkdir -p ${BOOT_MNT}/boot/grub
-	
-	if [ "$HAS_INITRD" = true ]; then
-		cat > ${BOOT_MNT}/boot/grub/grub.cfg << 'EOF'
-set default=0
-set timeout=5
-
-menuentry "HiKey970 Debian from SD Card" {
-    linux /Image root=/dev/mmcblk1p2 rootwait rw console=ttyAMA6,115200
-    devicetree /hi3670-hikey970.dtb
-    initrd /initrd.img
-}
-EOF
-	else
-		cat > ${BOOT_MNT}/boot/grub/grub.cfg << 'EOF'
-set default=0
-set timeout=5
-
-menuentry "HiKey970 Debian from SD Card" {
-    linux /Image root=/dev/mmcblk1p2 rootwait rw console=ttyAMA6,115200
-    devicetree /hi3670-hikey970.dtb
-}
-EOF
-	fi
-	
-	echo "  ✓ Created GRUB config at /boot/grub/grub.cfg"
+	# Copy boot files to boot partition
+	cp -v -r ${KERNEL_DIR}/* ${BOOT_MNT}
 	
 	sync
 	umount ${BOOT_MNT}
@@ -512,6 +419,7 @@ EOF
 	mount ${LOOP_DEV}p2 ${ROOT_MNT}
 	
 	(cd ${WORK_ROOTFS}; tar -cf - *) | tar -xf - -C ${ROOT_MNT}
+	rm -rf ${ROOT_MNT}/boot
 	
 	sync
 	umount ${ROOT_MNT}
