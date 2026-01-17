@@ -412,6 +412,11 @@ build_sdcard_image() {
   # Copy boot files to boot partition
   cp -v -r ${KERNEL_DIR}/* ${BOOT_MNT}
 
+  # SD card has two partitions hence /boot directory hierarchy differs slightly
+  # /boot
+  mkdir -p ${BOOT_MNT}/boot
+  mv ${BOOT_MNT}/grub ${BOOT_MNT}/boot
+
   sync
   umount ${BOOT_MNT}
   rmdir ${BOOT_MNT}
