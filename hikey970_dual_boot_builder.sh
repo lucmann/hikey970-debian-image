@@ -404,6 +404,10 @@ build_sdcard_image() {
   echo "Formatting root partition (EXT4)..."
   mkfs.ext4 -L "rootfs" ${LOOP_DEV}p2
 
+  # Extract UUID boot partition
+  BOOT_UUID=$(blkid ${LOOP_DEV}p1 | grep -o -P '\bUUID=".*?"')
+  echo "${LOOP_DEV}p1's UUID: ${BOOT_UUID}"
+
   # Populate boot partition
   echo "Populating boot partition..."
   BOOT_MNT=$(mktemp -d)
@@ -431,9 +435,9 @@ build_sdcard_image() {
     tar -cf - *
   ) | tar -xf - -C ${ROOT_MNT}
   rm -rf ${ROOT_MNT}/boot
-  cat >>${ROOT_MNT}/etc/fstab <<'EOF'
+  cat >>${ROOT_MNT}/etc/fstab <<EOF
 # /dev/mmcblk0p1
-UUID=35EA-7379      	/boot     	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,shortname=mixed,utf8,errors=remount-ro	0 2
+${BOOT_UUID}      	/boot     	vfat      	rw,relatime,fmask=0022,dmask=0022,codepage=437,shortname=mixed,utf8,errors=remount-ro	0 2
 EOF
 
   sync
@@ -445,7 +449,7 @@ EOF
 
   # Compress
   echo "Compressing SD card image..."
-  gzip -9 build/${SD_IMG_NAME}
+  gzip -f -9 build/${SD_IMG_NAME}
 
   echo ""
   echo "SD card image complete:"
