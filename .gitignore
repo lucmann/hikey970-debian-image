@@ -1,4 +1,5 @@
 build
+config/*.old
 *.swp
 ubuntu-18.04-arm64.qcow2
 QEMU_EFI.fd
