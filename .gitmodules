@@ -1,6 +1,0 @@
-[submodule "linux"]
-	path = linux
-	url = https://github.com/lucmann/linux.git
-[submodule "hikey970"]
-	path = hikey970
-	url = https://gitlab.freedesktop.org/lucmann/hikey-970.git
