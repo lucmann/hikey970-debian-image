@@ -50,8 +50,7 @@ int main() {
 
     for (int i = 0; i < res.count_connectors; i++) {
         memset(&conn, 0, sizeof(conn));
-        //conn.connector_id = conn_ids[i];
-        conn.connector_id = 37;
+        conn.connector_id = conn_ids[i];
         ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn);
         printf("connector id=%d status=%d modes=%d type=%d\n",
                conn_ids[i], conn.connection, conn.count_modes, conn.connector_type);
