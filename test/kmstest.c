@@ -59,10 +59,20 @@ int main() {
 
         if (conn.connection == 1 && conn.count_modes > 0) {
             /* 分配 modes 空间再读 */
+            uint32_t *encoders_ptr = calloc(conn.count_encoders, sizeof(uint32_t));
+            uint32_t *props_ptr = calloc(conn.count_props, sizeof(uint32_t));
+            uint64_t *prop_values_ptr = calloc(conn.count_props, sizeof(uint64_t));
             modes = calloc(conn.count_modes, sizeof(*modes));
+
+            conn.encoders_ptr = (uint64_t)(uintptr_t)encoders_ptr;
             conn.modes_ptr = (uint64_t)(uintptr_t)modes;
+            conn.props_ptr = (uint64_t)(uintptr_t)props_ptr;
+            conn.prop_values_ptr = (uint64_t)(uintptr_t)prop_values_ptr;
             conn.count_modes = count_modes;
-            ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn);
+            if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn)) {
+                perror("MODE_GETCONNECTOR");
+                return 2;
+            }
             conn_idx = i;
             break;
         }
