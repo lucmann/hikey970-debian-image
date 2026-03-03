@@ -23,11 +23,18 @@ int main() {
            res.count_connectors, res.count_crtcs,
            res.count_fbs, res.count_encoders);
 
-    /* 2. 分配空间再获取 id 列表 */
-    uint32_t *conn_ids = calloc(res.count_connectors, sizeof(uint32_t));
+    /**
+     * 2. Allocate space for all four kinds of ids
+     * Note that lack of any of these will cause the ioctl to fail with EFAULT (Bad address).
+     */
+    uint32_t *fb_ids = calloc(res.count_fbs, sizeof(uint32_t));
     uint32_t *crtc_ids = calloc(res.count_crtcs, sizeof(uint32_t));
-    res.connector_id_ptr = (uint64_t)(uintptr_t)conn_ids;
+    uint32_t *conn_ids = calloc(res.count_connectors, sizeof(uint32_t));
+    uint32_t *encoder_ids = calloc(res.count_encoders, sizeof(uint32_t));
+    res.fb_id_ptr        = (uint64_t)(uintptr_t)fb_ids;
     res.crtc_id_ptr      = (uint64_t)(uintptr_t)crtc_ids;
+    res.connector_id_ptr = (uint64_t)(uintptr_t)conn_ids;
+    res.encoder_id_ptr   = (uint64_t)(uintptr_t)encoder_ids;
     if(ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res))
       perror("MODE_GETRESOURCES");
 
