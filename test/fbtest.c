@@ -36,9 +36,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    printf("屏幕分辨率: %dx%d\n", vinfo.xres, vinfo.yres);
-    printf("颜色深度: %d bpp\n", vinfo.bits_per_pixel);
-    printf("行长度: %d bytes\n", finfo.line_length);
+    printf("resolution:   %dx%d\n", vinfo.xres, vinfo.yres);
+    printf("depth:        %d bpp\n", vinfo.bits_per_pixel);
+    printf("yres_virtual: %d lines\n", vinfo.yres_virtual);
+    printf("line_length:  %d bytes\n", finfo.line_length);
     
     // 计算屏幕大小
     screensize = vinfo.yres_virtual * finfo.line_length;
