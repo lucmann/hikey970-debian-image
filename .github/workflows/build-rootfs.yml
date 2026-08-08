@@ -10,6 +10,8 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [gitlab-push]
+  schedule:
+    - cron: '0 6 * * *'  # 每天 UTC 06:00 自动检查
 
 jobs:
   build:
