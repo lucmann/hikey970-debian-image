@@ -3,15 +3,15 @@ name: Build HiKey970 Rootfs
 on:
   push:
     paths:
-      - 'hikey-970'           # submodule pointer changed
-      - 'rootfs/**'            # rootfs config changed
+      - 'hikey-970'
+      - 'rootfs/**'
       - 'hikey970_dual_boot_builder.sh'
       - '.github/workflows/build-rootfs.yml'
-  workflow_dispatch:           # manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04-arm  # GitHub aarch64 runner (public beta)
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,27 +29,24 @@ jobs:
             parted \
             mount \
             qemu-user-static \
-            binfmt-support
+            binfmt-support \
+            gcc-aarch64-linux-gnu \
+            flex bison bc rsync
 
       - name: Build kernel from submodule
         run: |
           cd hikey-970
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
-          # Copy HiKey970 defconfig
-          cp ../config/hikey970_defconfig arch/arm64/configs/ 2>/dev/null || true
-          make defconfig hikey970_defconfig 2>/dev/null || make defconfig
+          make defconfig
           make -j$(nproc) Image.gz dtbs modules
-          # Copy outputs to rootfs boot dir
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
           cp arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb ../rootfs/boot/
 
-      - name: Build rootfs image
+      - name: Build rootfs
         run: |
-          sudo bash hikey970_dual_boot_builder.sh \
-            --skip-stage1 \
-            --kernel-dir rootfs/boot
+          sudo bash hikey970_dual_boot_builder.sh
         env:
           DISTRO: bookworm
           SYSTEM_SIZE: 2048
@@ -58,5 +55,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hikey970-rootfs-${{ github.sha }}
-          path: build/debian_bookworm.hikey970.*.sparse.img*
+          path: build/*.sparse.img*
           retention-days: 7
