@@ -44,6 +44,15 @@ jobs:
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
           cp arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb ../rootfs/boot/
 
+      - name: Upload kernel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hikey970-kernel-${{ github.sha }}
+          path: |
+            rootfs/boot/Image.gz
+            rootfs/boot/hi3670-hikey970.dtb
+          retention-days: 7
+
       - name: Build rootfs
         run: |
           sudo bash hikey970_dual_boot_builder.sh
