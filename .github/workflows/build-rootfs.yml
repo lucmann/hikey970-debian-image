@@ -46,13 +46,18 @@ jobs:
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
           cp arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb ../rootfs/boot/
 
-      - name: Upload kernel artifacts
+      - name: Upload kernel Image.gz
         uses: actions/upload-artifact@v4
         with:
-          name: hikey970-kernel-${{ github.sha }}
-          path: |
-            rootfs/boot/Image.gz
-            rootfs/boot/hi3670-hikey970.dtb
+          name: Image.gz
+          path: rootfs/boot/Image.gz
+          retention-days: 7
+
+      - name: Upload DTB
+        uses: actions/upload-artifact@v4
+        with:
+          name: hi3670-hikey970.dtb
+          path: rootfs/boot/hi3670-hikey970.dtb
           retention-days: 7
 
       - name: Build rootfs
@@ -62,11 +67,16 @@ jobs:
           DISTRO: bookworm
           SYSTEM_SIZE: 2048
 
-      - name: Upload rootfs artifacts
+      - name: Upload eMMC image
         uses: actions/upload-artifact@v4
         with:
-          name: hikey970-rootfs-${{ github.sha }}
-          path: |
-            build/*.sparse.img*
-            build/*.img.gz
+          name: emmc-sparse-img
+          path: build/*.sparse.img*
+          retention-days: 7
+
+      - name: Upload SD card image
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdcard-img
+          path: build/*.img.gz
           retention-days: 7
