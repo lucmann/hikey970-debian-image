@@ -8,6 +8,8 @@ on:
       - 'hikey970_dual_boot_builder.sh'
       - '.github/workflows/build-rootfs.yml'
   workflow_dispatch:
+  repository_dispatch:
+    types: [gitlab-push]
 
 jobs:
   build:
