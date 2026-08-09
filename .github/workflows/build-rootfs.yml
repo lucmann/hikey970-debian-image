@@ -44,7 +44,8 @@ jobs:
           git log --oneline -10
           echo "=== CONFIG ==="
           grep -c "=y\|=m" ../config/hikey970_verifiedconfig
-          make -j$(nproc) KCONFIG_CONFIG=../config/hikey970_verifiedconfig
+          cp ../config/hikey970_verifiedconfig .config
+          make -j$(nproc) Image.gz dtbs
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
           cp arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb ../rootfs/boot/
