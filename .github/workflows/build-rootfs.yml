@@ -40,6 +40,7 @@ jobs:
         run: |
           cd hikey-970
           cp ../config/hikey970_verifiedconfig .config
+          make olddefconfig
           make -j$(nproc)
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
