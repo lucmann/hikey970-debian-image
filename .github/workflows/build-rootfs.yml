@@ -39,7 +39,7 @@ jobs:
       - name: Build kernel from submodule
         run: |
           cd hikey-970
-          cp ../config/hikey970_verifiedconfig .config
+          export KCONFIG_CONFIG=../config/hikey970_verifiedconfig
           make olddefconfig
           make -j$(nproc)
           mkdir -p ../rootfs/boot
