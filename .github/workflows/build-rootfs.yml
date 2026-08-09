@@ -42,7 +42,8 @@ jobs:
           cd hikey-970
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
-          KCONFIG_CONFIG=../config/hikey970_verifiedconfig make olddefconfig
+          cp ../config/hikey970_verifiedconfig .config
+          make olddefconfig
           make -j$(nproc) Image.gz dtbs modules
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
