@@ -35,7 +35,8 @@ jobs:
             mount \
             qemu-user-static \
             binfmt-support \
-            flex bison bc rsync
+            flex bison bc rsync \
+            device-tree-compiler
 
       - name: Build kernel from submodule
         run: |
@@ -45,10 +46,13 @@ jobs:
           echo "=== CONFIG ==="
           grep -c "=y\|=m" ../config/hikey970_verifiedconfig
           cp ../config/hikey970_verifiedconfig .config
-          make -j$(nproc) Image.gz
+          make -j$(nproc) Image.gz dtbs DTC=/usr/bin/dtc
+          echo "=== DTB OUTPUT ==="
+          ls -la arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb
+          md5sum arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
-          cp ../config/hi3670-hikey970.dtb ../rootfs/boot/hi3670-hikey970.dtb
+          cp arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb ../rootfs/boot/
 
       - name: Upload kernel Image.gz
         uses: actions/upload-artifact@v4
