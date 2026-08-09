@@ -39,6 +39,10 @@ jobs:
       - name: Build kernel from submodule
         run: |
           cd hikey-970
+          echo "=== KERNEL COMMITS ==="
+          git log --oneline -10
+          echo "=== CONFIG ==="
+          grep -c "=y\|=m" ../config/hikey970_verifiedconfig
           make -j$(nproc) KCONFIG_CONFIG=../config/hikey970_verifiedconfig
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
