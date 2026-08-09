@@ -40,7 +40,7 @@ jobs:
         run: |
           cd hikey-970
           cp ../config/hikey970_verifiedconfig .config
-          make -j$(nproc) Image.gz dtbs modules
+          make -j$(nproc)
           mkdir -p ../rootfs/boot
           cp arch/arm64/boot/Image.gz ../rootfs/boot/
           cp arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb ../rootfs/boot/
