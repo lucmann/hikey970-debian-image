@@ -75,6 +75,8 @@ jobs:
         env:
           DISTRO: bookworm
           SYSTEM_SIZE: 2048
+          SD_IMAGE_SIZE: 256000
+          BOOT_SIZE: 1024
 
       - name: Upload eMMC image
         uses: actions/upload-artifact@v4
