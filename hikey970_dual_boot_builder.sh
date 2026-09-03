@@ -419,13 +419,7 @@ build_sdcard_image() {
   cp -v -r ${KERNEL_DIR}/* ${BOOT_MNT}
 
   # SD card has two partitions hence /boot directory hierarchy differs slightly
-  #  /
-  #  ├ EFI
-  #  │ ├ BOOT
-  #  │   ├ BOOTAA64.EFI (grubaa64.efi)
-  #  ├ boot
-  #  │ ├ grub
-  #  │   ├ grub.cfg
+  # /boot
   mkdir -p ${BOOT_MNT}/boot
   mv ${BOOT_MNT}/grub ${BOOT_MNT}/boot
 
