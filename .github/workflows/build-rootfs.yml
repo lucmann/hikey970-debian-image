@@ -78,6 +78,15 @@ jobs:
           SD_IMAGE_SIZE: 256000
           BOOT_SIZE: 1024
 
+      - name: Upload debootstrap log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debootstrap.log
+          path: rootfs/debootstrap/debootstrap.log
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Upload eMMC image
         uses: actions/upload-artifact@v4
         with:
