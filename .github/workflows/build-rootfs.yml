@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debootstrap.log
-          path: rootfs/debootstrap/debootstrap.log
+          path: /home/runner/work/hikey970-debian-image/hikey970-debian-image/build/rootfs/debootstrap/debootstrap.log
           if-no-files-found: error
           retention-days: 7
 
