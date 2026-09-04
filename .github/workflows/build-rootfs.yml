@@ -71,7 +71,7 @@ jobs:
 
       - name: Build rootfs
         run: |
-          sudo bash hikey970_dual_boot_builder.sh
+          sudo -E bash hikey970_dual_boot_builder.sh
         env:
           DISTRO: bookworm
           SYSTEM_SIZE: 2048
