@@ -359,7 +359,7 @@ build_sdcard_image() {
   SD_IMG_NAME="debian_${DISTRO}_sdcard.hikey970.${VERSION}.img"
 
   echo "Creating ${SD_IMAGE_SIZE}MB SD card image..."
-  dd if=/dev/zero of=build/${SD_IMG_NAME} bs=1M count=0 seek=${SD_IMAGE_SIZE} status=progress
+  dd if=/dev/zero of=build/${SD_IMG_NAME} bs=1MB count=0 seek=${SD_IMAGE_SIZE} status=progress
 
   # Create MBR partition table (NOT GPT!)
   # HiKey970 UEFI expects MBR for SD card boot
