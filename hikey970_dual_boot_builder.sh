@@ -9,6 +9,7 @@ echo "Version:" $VERSION
 REQUIRED="debootstrap img2simg mkfs.ext4 mkfs.vfat sgdisk parted losetup"
 MIRRORS=${MIRRORS:-}
 SOFTWARE="ssh \
+,acl \
 ,chrony \
 ,ntpdate \
 ,firmware-linux-nonfree \
