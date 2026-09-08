@@ -20,6 +20,7 @@ SOFTWARE="ssh \
 ,wpasupplicant \
 ,iw \
 ,systemd \
+,sudo \
 ,dhcpcd5 \
 ,wireless-tools \
 ,dbus \
