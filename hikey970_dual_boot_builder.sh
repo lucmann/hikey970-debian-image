@@ -27,6 +27,7 @@ SOFTWARE="ssh \
 ,iproute2 \
 ,rng-tools5 \
 ,haveged \
+,libglib2.0-bin \
 "
 
 SYSTEM_SIZE=${SYSTEM_SIZE:-'2048'}      # 2GB for rootfs
