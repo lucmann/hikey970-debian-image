@@ -26,8 +26,6 @@ SOFTWARE="acl \
 ,iproute2 \
 ,iw \
 ,libboost-dev \
-,libclang-22-dev \
-,libclang-cpp22-dev \
 ,libdecor-0-dev \
 ,libelf-dev \
 ,libexpat1-dev \
@@ -57,7 +55,6 @@ SOFTWARE="acl \
 ,libxshmfence-dev \
 ,libxxf86vm-dev \
 ,lightdm \
-,llvm-22-dev \
 ,mesa-utils \
 ,net-tools \
 ,ninja-build \
@@ -79,6 +76,15 @@ SOFTWARE="acl \
 ,wpasupplicant \
 ,xfce4 \
 ,xserver-xorg \
+"
+
+# Extra packages installed via chroot apt in stage 2. These live in
+# <distro>-updates / <distro>-security, which debootstrap --include cannot
+# see (it only resolves packages from the base suite).
+EXTRA_PACKAGES="\
+llvm-22-dev \
+libclang-22-dev \
+libclang-cpp22-dev \
 "
 
 SYSTEM_SIZE=${SYSTEM_SIZE:-'2048'}      # 2GB for rootfs
@@ -327,6 +333,8 @@ bootstrap_stage_2() {
   # Copy custom configurations if they exist
   [ -d "rootfs/boot" ] && cp -r rootfs/boot/* ${WORK_ROOTFS}/boot/ 2>/dev/null || true
   [ -d "rootfs/etc/netplan" ] && cp -r rootfs/etc/netplan ${WORK_ROOTFS}/etc/ 2>/dev/null || true
+  [ -f "rootfs/etc/environment" ] && cp rootfs/etc/environment ${WORK_ROOTFS}/etc/ 2>/dev/null || true
+  [ -d "rootfs/etc/profile.d" ] && cp -r rootfs/etc/profile.d ${WORK_ROOTFS}/etc/ 2>/dev/null || true
   [ -f "rootfs/etc/rc.local" ] && cp rootfs/etc/rc.local ${WORK_ROOTFS}/etc/ 2>/dev/null || true
   [ -d "rootfs/etc/update-motd.d" ] && cp -r rootfs/etc/update-motd.d ${WORK_ROOTFS}/etc/ 2>/dev/null || true
   [ -d "rootfs/etc/wpa_supplicant" ] && cp -r rootfs/etc/wpa_supplicant ${WORK_ROOTFS}/etc/ 2>/dev/null || true
@@ -334,6 +342,46 @@ bootstrap_stage_2() {
   [ -f "rootfs/etc/default/rng-tools" ] && cp rootfs/etc/default/rng-tools ${WORK_ROOTFS}/etc/default/ 2>/dev/null || true
   [ -d "rootfs/lib" ] && cp -r rootfs/lib/* ${WORK_ROOTFS}/lib/ 2>/dev/null || true
   [ -d "rootfs/root" ] && cp -r rootfs/root/* ${WORK_ROOTFS}/root/ 2>/dev/null || true
+
+  # Install extra packages that debootstrap cannot see (they live in
+  # <distro>-updates / <distro>-security, not in the base suite)
+  if [ -n "${EXTRA_PACKAGES}" ]; then
+    echo "Installing extra packages via chroot apt: ${EXTRA_PACKAGES}"
+
+    # Enable the updates and security suites, derived from the mirror that
+    # debootstrap wrote into sources.list
+    APT_SRC="${WORK_ROOTFS}/etc/apt/sources.list"
+    MIRROR=$(awk '/^deb /{print $2; exit}' ${APT_SRC} | sed 's:/*$::')
+    COMPONENTS=$(awk '/^deb /{for(i=4;i<=NF;i++) printf "%s ", $i; exit}' ${APT_SRC} | sed 's: *$::')
+    SECURITY_MIRROR="${MIRROR%/debian}/debian-security"
+    cat >> ${APT_SRC} <<EOF
+deb ${MIRROR} ${DISTRO}-updates ${COMPONENTS}
+deb ${SECURITY_MIRROR} ${DISTRO}-security ${COMPONENTS}
+EOF
+
+    # systemd-resolved's stub resolver (127.0.0.53) is unreachable from
+    # inside the chroot, so copy the real upstream resolver configuration
+    if [ -f /run/systemd/resolve/resolv.conf ]; then
+      cp /run/systemd/resolve/resolv.conf ${WORK_ROOTFS}/etc/resolv.conf
+    elif [ -e /etc/resolv.conf ]; then
+      cp -L /etc/resolv.conf ${WORK_ROOTFS}/etc/resolv.conf
+    fi
+
+    mount --bind /proc ${WORK_ROOTFS}/proc
+    mount --bind /sys ${WORK_ROOTFS}/sys
+    mount --bind /dev ${WORK_ROOTFS}/dev
+
+    if ! chroot ${WORK_ROOTFS} apt-get update ||
+       ! chroot ${WORK_ROOTFS} apt-get install -y ${EXTRA_PACKAGES}; then
+      umount ${WORK_ROOTFS}/dev ${WORK_ROOTFS}/sys ${WORK_ROOTFS}/proc 2>/dev/null || true
+      echo "Error: failed to install extra packages: ${EXTRA_PACKAGES}"
+      exit 1
+    fi
+
+    umount ${WORK_ROOTFS}/dev
+    umount ${WORK_ROOTFS}/sys
+    umount ${WORK_ROOTFS}/proc
+  fi
 
   # Run initialization script if exists
   if [ -f "${WORK_ROOTFS}/root/init.sh" ]; then
