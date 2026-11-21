@@ -29,6 +29,7 @@ systemctl enable dhcpcd.service
 
 echo "set timezone"
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+ln -sf /usr/bin/fdfind /usr/local/bin/fd
 
 echo "self destroy, bye bye"
 rm /root/init.sh

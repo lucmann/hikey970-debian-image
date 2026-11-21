@@ -74,7 +74,7 @@ jobs:
           sudo -E bash hikey970_dual_boot_builder.sh
         env:
           DISTRO: bookworm
-          SYSTEM_SIZE: 2048
+          SYSTEM_SIZE: 6144
           SD_IMAGE_SIZE: 256000
           BOOT_SIZE: 1024
 
