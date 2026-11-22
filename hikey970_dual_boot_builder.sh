@@ -13,6 +13,7 @@ SOFTWARE="acl \
 ,chrony \
 ,cmake \
 ,dbus \
+,dbus-x11 \
 ,dhcpcd5 \
 ,fd-find \
 ,firmware-linux-nonfree \
