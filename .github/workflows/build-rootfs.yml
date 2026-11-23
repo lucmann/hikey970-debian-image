@@ -44,9 +44,8 @@ jobs:
           echo "=== KERNEL COMMITS ==="
           git log --oneline -10
           echo "=== CONFIG ==="
-          grep -c "=y\|=m" ../config/hikey970_verifiedconfig
-          cp ../config/hikey970_verifiedconfig .config
-          make olddefconfig
+          make hikey970_defconfig
+          grep -c "=y\|=m" .config
           make -j$(nproc) Image.gz dtbs DTC=/usr/bin/dtc
           echo "=== DTB OUTPUT ==="
           ls -la arch/arm64/boot/dts/hisilicon/hi3670-hikey970.dtb
