@@ -36,6 +36,7 @@ SOFTWARE="acl \
 ,libglm-dev \
 ,libglvnd-dev \
 ,libpng-dev \
+,librsvg2-common \
 ,libselinux1-dev \
 ,libssl-dev \
 ,libstb-dev \
@@ -58,6 +59,7 @@ SOFTWARE="acl \
 ,libxxf86vm-dev \
 ,lightdm \
 ,mesa-utils \
+,neofetch \
 ,net-tools \
 ,ninja-build \
 ,ntpdate \
