@@ -71,7 +71,9 @@ SOFTWARE="acl \
 ,python3-mako \
 ,python3-setuptools \
 ,ripgrep \
+,ristretto \
 ,rng-tools5 \
+,scrot \
 ,ssh \
 ,sudo \
 ,systemd \
