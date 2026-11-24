@@ -23,6 +23,8 @@ SOFTWARE="acl \
 ,freeglut3-dev \
 ,g++ \
 ,git \
+,glmark2-es2-drm \
+,glmark2-es2-x11 \
 ,grep \
 ,haveged \
 ,iproute2 \
