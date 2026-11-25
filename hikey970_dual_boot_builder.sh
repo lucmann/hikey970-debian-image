@@ -441,15 +441,15 @@ build_emmc_image() {
   echo "Compressing eMMC image..."
   tar -C build -czf build/${SPARSE_IMG}.tar.gz ${SPARSE_IMG}
 
-  # Cleanup intermediate file
-  rm -f build/rootfs_emmc.img
+  # Cleanup intermediate files
+  rm -f build/rootfs_emmc.img build/${SPARSE_IMG}
 
   echo ""
   echo "eMMC image complete:"
-  ls -lh build/${SPARSE_IMG}
-  sha1sum build/${SPARSE_IMG}
+  ls -lh build/${SPARSE_IMG}.tar.gz
+  sha1sum build/${SPARSE_IMG}.tar.gz
   echo ""
-  echo "Flash with: fastboot flash system build/${SPARSE_IMG}"
+  echo "Flash with: tar xzf build/${SPARSE_IMG}.tar.gz && fastboot flash system ${SPARSE_IMG}"
 }
 
 # Build SD card bootable image
