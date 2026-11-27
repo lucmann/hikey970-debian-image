@@ -527,6 +527,10 @@ build_sdcard_image() {
   # Copy boot files to boot partition
   cp -v -r ${KERNEL_DIR}/* ${BOOT_MNT}
 
+  # Marker file so the ESP grub.cfg chain can detect the SD card
+  # (search --file /.sdcard-boot) and prefer it over eMMC
+  touch ${BOOT_MNT}/.sdcard-boot
+
   sync
   umount ${BOOT_MNT}
   rmdir ${BOOT_MNT}
