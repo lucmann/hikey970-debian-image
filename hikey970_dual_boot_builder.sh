@@ -22,6 +22,7 @@ SOFTWARE="acl \
 ,flex \
 ,freeglut3-dev \
 ,g++ \
+,gdisk \
 ,git \
 ,glmark2-es2-drm \
 ,glmark2-es2-x11 \
@@ -65,6 +66,7 @@ SOFTWARE="acl \
 ,net-tools \
 ,ninja-build \
 ,ntpdate \
+,parted \
 ,pkg-config \
 ,python3-jinja2 \
 ,python3-lz4 \
