@@ -7,6 +7,8 @@ on:
       - 'rootfs/**'
       - 'hikey970_dual_boot_builder.sh'
       - '.github/workflows/build-rootfs.yml'
+    tags:
+      - 'v*'        # push v* tag 时触发构建并发布 Release
   workflow_dispatch:
   repository_dispatch:
     types: [gitlab-push]
@@ -16,6 +18,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write    # 允许 gh release create
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -76,6 +80,8 @@ jobs:
           SYSTEM_SIZE: 6144
           SD_IMAGE_SIZE: 256000
           BOOT_SIZE: 1024
+          # tag 构建时用 tag 名作镜像版本号（文件名中的 vX.Y）
+          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || 'v1.0' }}
 
       - name: Upload debootstrap log
         if: always()
@@ -98,3 +104,16 @@ jobs:
           name: sdcard-img
           path: build/*.img.gz
           retention-days: 7
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            build/*.sparse.img.tar.gz \
+            build/*.img.gz \
+            rootfs/boot/Image.gz \
+            rootfs/boot/hi3670-hikey970.dtb \
+            --title "HiKey970 Debian ${GITHUB_REF_NAME}" \
+            --generate-notes

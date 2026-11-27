@@ -1,11 +1,12 @@
-# Hikey970 Debian Image
+Hikey970 Debian Image
+=====================
 
-This is a Debian system image for Hikey970 SBC ONLY
+This is a Debian system image (both eMMC and SDCard) for Hikey970 SBC ONLY
 
-## Download
-[Release Page](https://github.com/mengzhuo/hikey970-ubuntu-image/releases)
+# Download
+[Release Page](https://github.com/lucmann/hikey970-debian-image/releases)
 
-## Usage
+# Usage
 
 ```
 fastboot flash system debian_*.sparse.img
@@ -24,7 +25,7 @@ Expend disk (no reboot required)
 $ resize2fs /dev/sdd12 # max usage of disk
 ```
 
-## Build from source
+# Build from source
 
 Install required
 
